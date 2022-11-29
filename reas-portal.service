@@ -1,0 +1,16 @@
+[Unit]
+Description=REAS portal node
+Wants=network-online.target
+After=network.target network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+StartLimitBurst=5
+
+ExecStart=/usr/bin/python3 /opt/reas-portal/main.py
+
+[Install]
+WantedBy=multi-user.target

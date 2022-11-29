@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+
+service_exists() {
+  local n=$1
+  if [[ $(systemctl list-units --all -t service --full --no-legend "$n.service" | sed 's/^\s*//g' | cut -f1 -d' ') == $n.service ]]; then
+      return 0
+  else
+      return 1
+  fi
+}
+
+if service_exists reas-portal; then
+  echo "Stoping Service..."
+  systemctl stop reas-portal.service
+fi
+
+echo "Copy files..."
+mkdir -p /opt/reas-portal
+yes | mv -f ./main.py /opt/reas-portal
+
+echo "Copy cofig file..."
+yes | mv -f ./reas-portal.ini /etc/
+
+echo "Service instaling..."
+yes | mv -f ./reas-portal.service /etc/systemd/system/
+
+echo "Starting and enable reas-portal.service..."
+systemctl restart reas-portal.service
+systemctl enable reas-portal.service
+
+
+
